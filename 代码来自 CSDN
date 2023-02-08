@@ -1,0 +1,27 @@
+# encoding=utf-8
+#感谢 CSND 的
+ 
+sc_txt = open('source_code.txt', 'r')  # 打开存有网页源代码的 source_code.txt 文件（需提前将源代码存入此文件）
+sc_list = list(sc_txt.read())  # 源代码文件内容以每个字符为一项组成列表 sc_list
+dl_list = []  # 创建空列表 dl_list 准备存入下载链接
+ 
+# 在整个 sc_list 字符串里以开头结尾的固定字符查找下载链接然后写入 dl_list 中
+# 开头固定字符为'<a href="'，这里取'f'、'='、'"'三个连续字符作为开头查找格式
+# 在'f'、'='、'"'三个连续字符后，从 sc_list[3] 即第四位（前三位为开头格式字符）开始提取
+# 并且只提取 'e'(ed2k)、 'm'(magnet)、 't'(thunder) 三类最常见下载链接
+# 在500位内（下载链接长度一般为300字符以下）查找末尾格式字符
+# ed2k、thunder 链接在'"'处结束，磁力链接（'magnet'）在'&'处结束
+for i in range(len(sc_list)):
+	if sc_list[i] == 'f' and sc_list[i + 1] == '=' and sc_list[i + 2] == '"':
+		if sc_list[i + 3] == 'e' or sc_list[i + 3] == 't' or sc_list[i + 3] == 'm':
+			for j in range(3,500):
+				if sc_list[i + j] == '"' or sc_list[i + j] == '&':
+					dl_list.append('\n')  # 本条下载链接提取结束，换行
+					j = 0  # 将 j 置 0 准备查找下一条下载链接
+					break
+				dl_list.append(sc_list[i + j])  # 在没遇到结束字符时将各字符（也就是本条下载链接的内容）存入 dl_list 中
+ 
+dl_txt = open('download_link.txt', 'w')  # 打开（创建）文件 download_link.txt
+dl_txt.write(''.join(dl_list))  # 将内容为下载链接的列表通过空字符连接为字符串，并写入 download_link.txt
+sc_txt.close()  # 关闭 source_code.txt
+dl_txt.close()  # 关闭 download_link.txt
